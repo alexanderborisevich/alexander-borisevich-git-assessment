@@ -3,11 +3,20 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// In-memory "user database" (for demonstration)
+// In-memory "user database"
 const users = [];
 
-// Secret key for JWT (in real apps, store in environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+
+/**
+ * Validate email format
+ * Simple regex for demonstration purposes
+ * @param {string} email
+ */
+function isValidEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
 
 /**
  * Register a new user
@@ -15,6 +24,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
  * @param {string} password 
  */
 export async function registerUser(email, password) {
+  if (!isValidEmail(email)) throw new Error('Invalid email format');
+
   if (users.find(u => u.email === email)) {
     throw new Error('User already exists');
   }
@@ -38,7 +49,6 @@ export async function loginUser(email, password) {
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new Error('Invalid email or password');
 
-  // Update last login time
   user.lastLogin = new Date().toISOString();
 
   const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
