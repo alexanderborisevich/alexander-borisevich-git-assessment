@@ -11,6 +11,9 @@ async function main() {
   console.log('Simulating async work...');
   await delay(3000);
 
+  console.log('Still working...');
+  await delay(3000);
+
   console.log('Done at:', getTimestamp());
 }
 
