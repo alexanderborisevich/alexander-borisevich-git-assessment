@@ -11,6 +11,12 @@ async function main() {
   const surname = 'b';
   console.log('Surname:', capitalize(surname));
 
+  const birthYear = '1994';
+  console.log('Birth Year:', capitalize(birthYear));
+
+  const hobby = 'football';
+  console.log('Hobby:', capitalize(hobby));
+
   console.log('Simulating async work...');
   await delay(3000);
 
