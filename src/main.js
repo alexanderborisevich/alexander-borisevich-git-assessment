@@ -9,7 +9,7 @@ async function main() {
   console.log('User name:', capitalize(name));
 
   console.log('Simulating async work...');
-  await delay(1000);
+  await delay(2000);
 
   console.log('Done at:', getTimestamp());
 }
