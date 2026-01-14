@@ -15,16 +15,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
  * @param {string} password 
  */
 export async function registerUser(email, password) {
-  // Check if user already exists
   if (users.find(u => u.email === email)) {
     throw new Error('User already exists');
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Store user
-  const user = { email, password: hashedPassword };
+  const user = { email, password: hashedPassword, lastLogin: null };
   users.push(user);
 
   return { message: 'User registered successfully', user: { email } };
@@ -37,18 +33,29 @@ export async function registerUser(email, password) {
  */
 export async function loginUser(email, password) {
   const user = users.find(u => u.email === email);
-  if (!user) {
-    throw new Error('Invalid email or password');
-  }
+  if (!user) throw new Error('Invalid email or password');
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    throw new Error('Invalid email or password');
-  }
+  if (!match) throw new Error('Invalid email or password');
 
-  // Generate JWT (expires in 1 hour)
+  // Update last login time
+  user.lastLogin = new Date().toISOString();
+
   const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-  return { message: 'Login successful', token };
+  return { message: 'Login successful', token, lastLogin: user.lastLogin };
+}
+
+/**
+ * Reset user password
+ * @param {string} email 
+ * @param {string} newPassword 
+ */
+export async function resetPassword(email, newPassword) {
+  const user = users.find(u => u.email === email);
+  if (!user) throw new Error('User not found');
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  return { message: 'Password reset successfully', email: user.email };
 }
 
 /**
