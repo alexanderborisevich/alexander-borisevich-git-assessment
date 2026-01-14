@@ -8,6 +8,9 @@ async function main() {
   const name = 'alex';
   console.log('User name:', capitalize(name));
 
+  const surname = 'b';
+  console.log('Surname:', capitalize(surname));
+
   console.log('Simulating async work...');
   await delay(3000);
 
