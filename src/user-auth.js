@@ -3,15 +3,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// In-memory "user database"
 const users = [];
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 /**
  * Validate email format
- * Simple regex for demonstration purposes
- * @param {string} email
  */
 function isValidEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,12 +16,19 @@ function isValidEmail(email) {
 }
 
 /**
+ * Validate password strength
+ * Minimum 8 chars, at least one letter and one number
+ */
+function isStrongPassword(password) {
+  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+}
+
+/**
  * Register a new user
- * @param {string} email 
- * @param {string} password 
  */
 export async function registerUser(email, password) {
   if (!isValidEmail(email)) throw new Error('Invalid email format');
+  if (!isStrongPassword(password)) throw new Error('Password must be at least 8 characters long and include letters and numbers');
 
   if (users.find(u => u.email === email)) {
     throw new Error('User already exists');
@@ -39,8 +43,6 @@ export async function registerUser(email, password) {
 
 /**
  * Authenticate a user and return JWT
- * @param {string} email 
- * @param {string} password 
  */
 export async function loginUser(email, password) {
   const user = users.find(u => u.email === email);
@@ -57,10 +59,10 @@ export async function loginUser(email, password) {
 
 /**
  * Reset user password
- * @param {string} email 
- * @param {string} newPassword 
  */
 export async function resetPassword(email, newPassword) {
+  if (!isStrongPassword(newPassword)) throw new Error('Password must be at least 8 characters long and include letters and numbers');
+
   const user = users.find(u => u.email === email);
   if (!user) throw new Error('User not found');
 
@@ -70,7 +72,6 @@ export async function resetPassword(email, newPassword) {
 
 /**
  * Verify JWT token
- * @param {string} token 
  */
 export function verifyToken(token) {
   try {
